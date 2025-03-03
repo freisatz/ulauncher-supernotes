@@ -1,0 +1,43 @@
+{
+  "required_api_version": "2",
+  "name": "Supernotes",
+  "description": "Inofficial Supernotes extension",
+  "developer_name": "Robin Strehlow",
+  "icon": "images/supernotes.png",
+  "options": {
+    "query_debounce": 0.1
+  },
+  "preferences": [
+    {
+      "id": "supernotes_kw",
+      "type": "keyword",
+      "name": "Supernotes",
+      "default_value": "sn"
+    },
+    {
+      "id": "limit",
+      "type": "text",
+      "name": "Limit",
+      "default_value": "10"
+    },
+    {
+      "id": "api_key",
+      "type": "text",
+      "name": "API key",
+      "description": "Your API key",
+      "default_value": ""
+    },
+    {
+      "id": "open_in",
+      "type": "select",
+      "name": "Open in",
+      "default_value": "web_pv",
+      "options": [
+          {"text": "App preview", "value": "app_pv"},
+          {"text": "App noteboard", "value": "app_nb"},
+          {"text": "Web preview", "value": "web_pv"},
+          {"text": "Web noteboard", "value": "web_nb"}
+      ]
+    }
+  ]
+}
