@@ -21,6 +21,12 @@
       "default_value": "10"
     },
     {
+      "id": "max_rows",
+      "type": "text",
+      "name": "Maximal number of rows",
+      "default_value": "3"
+    },
+    {
       "id": "api_key",
       "type": "text",
       "name": "API key",

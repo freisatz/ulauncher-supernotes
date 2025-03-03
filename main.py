@@ -37,7 +37,7 @@ class KeywordQueryEventListener(EventListener):
             'include': [],
             'exclude': [],
             'sort_type': 0,
-            'sort_ascending': True,
+            'sort_ascending': False,
             'limit': limit
         }
         headers = {
@@ -87,15 +87,22 @@ class KeywordQueryEventListener(EventListener):
             )
             
             url_builder = KeywordQueryEventListener.get_url_builder(extension.preferences['open_in'])
+            max_rows = int(extension.preferences['max_rows'])
 
             for id in result:
                 data = result.get(id).get('data')
                 name = data.get('name')
                 markup = data.get('markup')
 
+                array = markup.splitlines()
+                array = array[0:min(len(array), max_rows)]
+
+                markup = "\n".join(array)
+
                 items.append(ExtensionResultItem(icon='images/supernotes.png',
                                                 name=name,
-                                                description=(markup[:self.DESC_MAX_LENGTH] + '...') if len(markup) > self.DESC_MAX_LENGTH else markup,
+                                                # description=(markup[:self.DESC_MAX_LENGTH] + '...') if len(markup) > self.DESC_MAX_LENGTH else markup,
+                                                description=markup,
                                                 on_enter=OpenUrlAction(url_builder(id))))
         else:                    
             items.append(ExtensionResultItem(icon='images/supernotes.png',
