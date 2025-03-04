@@ -1,4 +1,5 @@
 import logging
+import re
 
 from ulauncher.api.client.Extension import Extension
 from ulauncher.api.client.EventListener import EventListener
@@ -86,18 +87,26 @@ class KeywordQueryEventListener(EventListener):
 
 class ItemEnterEventListener(EventListener):
 
-    def push(self, name, api_key):    
+    def push(self, name, tags, api_key):    
         logger.info('Creating new card with name "%s"' % name)
 
         api = SupernotesApi(api_key)
-        response = api.create(name)
+        response = api.create(name, tags)
 
         return response.json()
+
+    def read_tags(self, str):
+        tags = [tag.strip() for tag in str.split(',')]
+        p = re.compile('^[a-zA-Z0-9-_ ]+$')
+        return [ tag for tag in tags if p.match(tag) ]
 
     def on_event(self, event, extension):
         data = event.get_data()
         if data['action'] == 'push':
-            self.push(data['name'], extension.preferences['api_key'])
+            self.push(
+                data['name'], 
+                self.read_tags(extension.preferences['tags']), 
+                extension.preferences['api_key'])
         
 
 if __name__ == '__main__':

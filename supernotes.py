@@ -54,14 +54,14 @@ class SupernotesApi:
         }
         return requests.post(url, json=payload, headers=headers)
     
-    def create(self, name):
+    def create(self, name, tags):
         url = "https://api.supernotes.app/v1/cards/simple"
         payload = {
             "name": name,
             "markup": "",
             "color": None,
             "icon": None,
-            "tags": ["saved on the go"],
+            "tags": tags,
             "parent_ids": [],
             "source": None,
             "meta": {}

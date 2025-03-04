@@ -22,6 +22,13 @@
       "default_value": "10"
     },
     {
+      "id": "tags",
+      "type": "text",
+      "name": "Tags",
+      "description": "The comma-separated tags to add to created cards.",
+      "default_value": "saved on the go"
+    },
+    {
       "id": "max_rows",
       "type": "text",
       "name": "Maximal number of rows",
