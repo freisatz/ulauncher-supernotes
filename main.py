@@ -105,14 +105,18 @@ class ItemEnterEventListener(EventListener):
         p = re.compile("^[a-zA-Z0-9-_ ]+$")
         return [tag.strip() for tag in str.split(",") if p.match(tag)]
 
+    def on_push_action(self, event, extension):
+        data = event.get_data()
+        self.push(
+            data["name"],
+            self.read_tags(extension.preferences["tags"]),
+            extension.preferences["api_key"],
+        )
+
     def on_event(self, event, extension):
         data = event.get_data()
-        if data["action"] == "push":
-            self.push(
-                data["name"],
-                self.read_tags(extension.preferences["tags"]),
-                extension.preferences["api_key"],
-            )
+        switch = {"push": self.on_push_action}
+        switch.get(data["action"])(event, extension)
 
 
 if __name__ == "__main__":
