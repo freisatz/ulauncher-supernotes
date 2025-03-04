@@ -11,7 +11,7 @@ from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
 from ulauncher.api.shared.action.OpenUrlAction import OpenUrlAction
 from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
 
-from supernotes import SupernotesApi, get_sn_url
+from supernotes import SupernotesApi, SupernotesUrlFactory
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +60,8 @@ class KeywordQueryEventListener(EventListener):
 
             max_rows = int(extension.preferences['max_rows'])
 
+            url_factory = SupernotesUrlFactory(extension.preferences['open_in'])
+            
             for id in result:
                 data = result.get(id).get('data')
                 name = data.get('name')
@@ -69,18 +71,16 @@ class KeywordQueryEventListener(EventListener):
                 array = array[0:min(len(array), max_rows)]
 
                 markup = "\n".join(array)
-                url = get_sn_url(extension.preferences['open_in'], id)
 
                 items.append(ExtensionResultItem(icon='images/supernotes.png',
                                                 name=name,
                                                 description=markup,
-                                                on_enter=OpenUrlAction(url)))
+                                                on_enter=OpenUrlAction(url_factory.create(id))))
         else:                    
             items.append(ExtensionResultItem(icon='images/supernotes.png',
                                             name='No API key',
                                             description='Provide your API key in extension settings',
                                             on_enter=HideWindowAction()))
-
 
         return RenderResultListAction(items)
 

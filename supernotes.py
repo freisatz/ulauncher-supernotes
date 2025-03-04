@@ -1,29 +1,34 @@
 import requests
 
-
-@staticmethod
-def get_sn_url(open_in, id):
-
-    def open_in_app_noteboard(id):
+class SupernotesUrlFactory:
+    
+    def _open_in_app_noteboard(id):
         return "supernotes:/v/card/%s" % id
 
-    def open_in_app_preview(id):
+    def _open_in_app_preview(id):
         return "supernotes:/?preview=%s" % id
 
-    def open_in_web_noteboard(id):
+    def _open_in_web_noteboard(id):
         return "https://my.supernotes.app/v/card/%s" % id
 
-    def open_in_web_preview(id):
+    def _open_in_web_preview(id):
         return "https://my.supernotes.app/?preview=%s" % id
+    
+    func = None
+    
+    def __init__(self, open_in):
+        
+        switch = {
+            "app_nb": SupernotesUrlFactory._open_in_app_noteboard, 
+            "app_pv": SupernotesUrlFactory._open_in_app_preview,
+            "web_nb": SupernotesUrlFactory._open_in_web_noteboard, 
+            "web_pv": SupernotesUrlFactory._open_in_web_preview
+        }
 
-    switch = {
-        "app_nb": open_in_app_noteboard, 
-        "app_pv": open_in_app_preview,
-        "web_nb": open_in_web_noteboard, 
-        "web_pv": open_in_web_preview
-    }
-
-    return switch.get(open_in)(id)
+        self.func = switch.get(open_in)
+    
+    def create(self, id):
+        return self.func(id)
 
 
 class SupernotesApi:
