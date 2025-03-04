@@ -24,8 +24,6 @@ class SupernotesExtension(Extension):
 
 class KeywordQueryEventListener(EventListener):
 
-    DESC_MAX_LENGTH = 60
-
     def fetch(self, search, limit, api_key):    
         logger.info('Requesting results for query "%s"' % search)
 
@@ -95,7 +93,7 @@ class KeywordQueryEventListener(EventListener):
                                             on_enter=ExtensionCustomAction(data)))
 
             result = self.fetch(
-                event.get_argument(), 
+                arg_str, 
                 extension.preferences['limit'], 
                 api_key
             )

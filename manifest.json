@@ -18,12 +18,14 @@
       "id": "limit",
       "type": "text",
       "name": "Limit",
+      "description": "The maximal number of search results.",
       "default_value": "10"
     },
     {
       "id": "max_rows",
       "type": "text",
       "name": "Maximal number of rows",
+      "description": "The maximal number of rows displayed in an item's description.",
       "default_value": "3"
     },
     {
@@ -37,6 +39,7 @@
       "id": "open_in",
       "type": "select",
       "name": "Open in",
+      "description": "Specify how the selected cards are to be opened.",
       "default_value": "web_pv",
       "options": [
           {"text": "App preview", "value": "app_pv"},
