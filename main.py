@@ -1,6 +1,4 @@
-import json
 import logging
-import requests
 
 from ulauncher.api.client.Extension import Extension
 from ulauncher.api.client.EventListener import EventListener
@@ -11,6 +9,8 @@ from ulauncher.api.shared.action.RenderResultListAction import RenderResultListA
 from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
 from ulauncher.api.shared.action.OpenUrlAction import OpenUrlAction
 from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
+
+from supernotes import SupernotesApi
 
 logger = logging.getLogger(__name__)
 
@@ -24,28 +24,12 @@ class SupernotesExtension(Extension):
 
 class KeywordQueryEventListener(EventListener):
 
-    def fetch(self, search, limit, api_key):    
-        logger.info('Requesting results for query "%s"' % search)
+    def fetch(self, search, limit, api_key):
 
-        url = 'https://api.supernotes.app/v1/cards/get/select'
-        payload = {
-            'include_membership_statuses': [ 
-                0,
-                1,
-                2 
-            ],
-            'search': search,
-            'include': [],
-            'exclude': [],
-            'sort_type': 0,
-            'sort_ascending': False,
-            'limit': limit
-        }
-        headers = {
-            'content-type': 'application/json',
-            'Api-Key': api_key
-        }
-        response = requests.post(url, json=payload, headers=headers)
+        logger.info('Requesting results for query "%s"' % search)
+        
+        api = SupernotesApi(api_key)
+        response = api.select(search, limit)
 
         return response.json()
 
@@ -130,22 +114,8 @@ class ItemEnterEventListener(EventListener):
     def push(self, name, api_key):    
         logger.info('Creating new card with name "%s"' % name)
 
-        url = "https://api.supernotes.app/v1/cards/simple"
-        payload = {
-            "name": name,
-            "markup": "",
-            "color": None,
-            "icon": None,
-            "tags": ["saved on the go"],
-            "parent_ids": [],
-            "source": None,
-            "meta": {}
-        }
-        headers = {
-            "Api-Key": api_key,
-            "Content-Type": "application/json"
-        }
-        response = requests.request("POST", url, json=payload, headers=headers)
+        api = SupernotesApi(api_key)
+        response = api.create(name)
 
         return response.json()
 
@@ -154,7 +124,6 @@ class ItemEnterEventListener(EventListener):
         if data['action'] == 'push':
             self.push(data['name'], extension.preferences['api_key'])
         
-
 
 if __name__ == '__main__':
     SupernotesExtension().run()
