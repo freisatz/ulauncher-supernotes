@@ -3,6 +3,8 @@
 Simple extension for searching your [Supernotes](https://www.supernotes.app) database and creating new cards from
 within [Ulauncher](https://ulauncher.io/).
 
+![ulauncher-supernotes](images/example_ulauncher_supernotes.png)
+
 ## Setup
 
 In order to authorize with your Supernotes account, provide a valid API key in this extension's preferences in the
