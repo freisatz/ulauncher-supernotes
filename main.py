@@ -96,9 +96,8 @@ class ItemEnterEventListener(EventListener):
         return response.json()
 
     def read_tags(self, str):
-        tags = [tag.strip() for tag in str.split(',')]
         p = re.compile('^[a-zA-Z0-9-_ ]+$')
-        return [ tag for tag in tags if p.match(tag) ]
+        return [ tag.strip() for tag in str.split(',') if p.match(tag) ]
 
     def on_event(self, event, extension):
         data = event.get_data()
