@@ -1,5 +1,31 @@
 import requests
 
+
+@staticmethod
+def get_sn_url(open_in, id):
+
+    def open_in_app_noteboard(id):
+        return "supernotes:/v/card/%s" % id
+
+    def open_in_app_preview(id):
+        return "supernotes:/?preview=%s" % id
+
+    def open_in_web_noteboard(id):
+        return "https://my.supernotes.app/v/card/%s" % id
+
+    def open_in_web_preview(id):
+        return "https://my.supernotes.app/?preview=%s" % id
+
+    switch = {
+        "app_nb": open_in_app_noteboard, 
+        "app_pv": open_in_app_preview,
+        "web_nb": open_in_web_noteboard, 
+        "web_pv": open_in_web_preview
+    }
+
+    return switch.get(open_in)(id)
+
+
 class SupernotesApi:
 
     api_key = ""

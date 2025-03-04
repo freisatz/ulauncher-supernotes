@@ -10,7 +10,7 @@ from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
 from ulauncher.api.shared.action.OpenUrlAction import OpenUrlAction
 from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
 
-from supernotes import SupernotesApi
+from supernotes import SupernotesApi, get_sn_url
 
 logger = logging.getLogger(__name__)
 
@@ -32,31 +32,6 @@ class KeywordQueryEventListener(EventListener):
         response = api.select(search, limit)
 
         return response.json()
-
-    @staticmethod
-    def get_url_builder(open_in):
-
-        def open_in_app_noteboard(id):
-            return "supernotes:/v/card/%s" % id
-
-        def open_in_app_preview(id):
-            return "supernotes:/?preview=%s" % id
-
-        def open_in_web_noteboard(id):
-            return "https://my.supernotes.app/v/card/%s" % id
-
-        def open_in_web_preview(id):
-            return "https://my.supernotes.app/?preview=%s" % id
-
-        switch = {
-            "app_nb": open_in_app_noteboard, 
-            "app_pv": open_in_app_preview,
-            "web_nb": open_in_web_noteboard, 
-            "web_pv": open_in_web_preview
-        }
-
-        return switch.get(open_in)
-
 
     def on_event(self, event, extension):
 
@@ -81,8 +56,7 @@ class KeywordQueryEventListener(EventListener):
                 extension.preferences['limit'], 
                 api_key
             )
-            
-            url_builder = KeywordQueryEventListener.get_url_builder(extension.preferences['open_in'])
+
             max_rows = int(extension.preferences['max_rows'])
 
             for id in result:
@@ -94,11 +68,12 @@ class KeywordQueryEventListener(EventListener):
                 array = array[0:min(len(array), max_rows)]
 
                 markup = "\n".join(array)
+                url = get_sn_url(extension.preferences['open_in'], id)
 
                 items.append(ExtensionResultItem(icon='images/supernotes.png',
                                                 name=name,
                                                 description=markup,
-                                                on_enter=OpenUrlAction(url_builder(id))))
+                                                on_enter=OpenUrlAction(url)))
         else:                    
             items.append(ExtensionResultItem(icon='images/supernotes.png',
                                             name='No API key',
