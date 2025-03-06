@@ -43,13 +43,15 @@ class KeywordQueryEventListener(EventListener):
         items = []
 
         if api_key:
-
+            desc = ""
+            if len(arg_str) == 0:
+                desc = "Type in a card title and press Enter..."
             data = {"action": "push", "name": arg_str}
             items.append(
                 ExtensionResultItem(
                     icon="images/supernotes.png",
                     name="Create new card",
-                    description=arg_str,
+                    description=desc,
                     on_enter=ExtensionCustomAction(data),
                 )
             )
