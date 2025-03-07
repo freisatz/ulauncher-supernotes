@@ -33,9 +33,14 @@ class KeywordQueryEventListener(EventListener):
         api = SupernotesApi(api_key)
         response = api.select(search, limit)
 
-        return response.json()
+        result = []
 
-    def on_event(self, event, extension):
+        if response.status_code == 200:
+            result = response.json()
+
+        return result
+
+    def on_event(self, event: KeywordQueryEvent, extension: SupernotesExtension):
 
         api_key = extension.preferences["api_key"]
         arg_str = event.get_argument() if event.get_argument() else ""
@@ -58,7 +63,7 @@ class KeywordQueryEventListener(EventListener):
 
             result = self.fetch(arg_str, extension.preferences["limit"], api_key)
 
-            max_rows = int(extension.preferences["max_rows"])
+            max_rows = int(extension.preferences["max_rows"]) if extension.preferences["max_rows"].isdigit() else 3
 
             url_factory = SupernotesUrlFactory(extension.preferences["open_in"])
 
@@ -96,18 +101,18 @@ class KeywordQueryEventListener(EventListener):
 class ItemEnterEventListener(EventListener):
 
     def push(self, name, tags, api_key):
-        logger.info('Creating new card with name "%s"' % name)
+        logger.info(f'Creating new card with name "{name}"')
 
         api = SupernotesApi(api_key)
         response = api.create(name, tags)
 
         return response.json()
 
-    def read_tags(self, str):
-        p = re.compile("^[a-zA-Z0-9-_ ]+$")
-        return [tag.strip() for tag in str.split(",") if p.match(tag)]
+    def read_tags(self, string):
+        p = re.compile("^[\w-_ ]+$")
+        return [tag.strip() for tag in string.split(",") if p.match(tag)]
 
-    def on_push_action(self, event, extension):
+    def on_push_action(self, event: ItemEnterEvent, extension: SupernotesExtension):
         data = event.get_data()
         self.push(
             data["name"],
@@ -115,7 +120,7 @@ class ItemEnterEventListener(EventListener):
             extension.preferences["api_key"],
         )
 
-    def on_event(self, event, extension):
+    def on_event(self, event: ItemEnterEvent, extension: SupernotesExtension):
         data = event.get_data()
         switch = {"push": self.on_push_action}
         switch.get(data["action"])(event, extension)

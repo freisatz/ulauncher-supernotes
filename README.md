@@ -8,7 +8,7 @@ within [Ulauncher](https://ulauncher.io/).
 ## Setup
 
 In order to authorize with your Supernotes account, provide a valid API key in this extension's preferences in the
-Ulauncher GUI. You can get a key in the Supernotes settings under *API & Integrations --> *Manage API Keys*.
+Ulauncher GUI. You can get a key in the Supernotes settings under `API & Integrations --> Manage API Keys`.
 
 ## Contributing
 
