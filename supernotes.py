@@ -53,11 +53,11 @@ class SupernotesApi:
         headers = {"content-type": "application/json", "Api-Key": self.api_key}
         return requests.post(url, json=payload, headers=headers)
 
-    def create(self, name, tags):
+    def create(self, name, tags, markup = ""):
         url = "https://api.supernotes.app/v1/cards/simple"
         payload = {
             "name": name,
-            "markup": "",
+            "markup": markup,
             "color": None,
             "icon": None,
             "tags": tags,
@@ -67,3 +67,17 @@ class SupernotesApi:
         }
         headers = {"Api-Key": self.api_key, "Content-Type": "application/json"}
         return requests.request("POST", url, json=payload, headers=headers)
+
+    def update(self, id, markup):
+        url = "https://api.supernotes.app/v1/cards"
+
+        payload = {
+            id: {
+                "data": {
+                    "markup": markup,
+                }
+            }
+        }
+        headers = {"Api-Key": self.api_key, "Content-Type": "application/json"}
+
+        return requests.patch(url, json=payload, headers=headers)

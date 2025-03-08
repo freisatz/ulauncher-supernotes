@@ -54,6 +54,38 @@
           {"text": "Web preview", "value": "web_pv"},
           {"text": "Web noteboard", "value": "web_nb"}
       ]
+    },
+    {
+      "id": "daily_pattern",
+      "type": "text",
+      "name": "Daily note title",
+      "description": "Define a pattern for your daily note, where %d is replaced by the current date.",
+      "default_value": "%d Daily Note"
+    },
+    {
+      "id": "daily_date_style",
+      "type": "select",
+      "name": "Daily note date style",
+      "description": "Specify the format of the date used for your daily note. Blank to disable daily notes.",
+      "default_value": "traditional",
+      "options": [
+          {"text": "2025-01-31", "value": "iso"},
+          {"text": "31.01.2025", "value": "european"},
+          {"text": "01/31/2025", "value": "american"},
+          {"text": "January 1st, 2025", "value": "traditional"}
+      ]
+    },
+    {
+      "id": "daily_append_style",
+      "type": "select",
+      "name": "Daily note append style",
+      "description": "Specify how to append a new string to your daily note.",
+      "default_value": "plain",
+      "options": [
+          {"text": "Bullet", "value": "bullet"},
+          {"text": "Todo", "value": "todo"},
+          {"text": "Plain", "value": "plain"}
+      ]
     }
   ]
 }
