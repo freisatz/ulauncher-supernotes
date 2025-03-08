@@ -109,7 +109,7 @@ class ItemEnterEventListener(EventListener):
         return response.json()
 
     def read_tags(self, string):
-        p = re.compile("^[\w-_ ]+$")
+        p = re.compile(r"^[\w_\- ]+$")
         return [tag.strip() for tag in string.split(",") if p.match(tag)]
 
     def on_push_action(self, event: ItemEnterEvent, extension: SupernotesExtension):
