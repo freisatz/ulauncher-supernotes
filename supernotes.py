@@ -36,7 +36,7 @@ class SupernotesApi:
 
     api_key = ""
 
-    def __init__(self, api_key):
+    def __init__(self, api_key = ""):
         self.api_key = api_key
 
     def select(self, search, limit, filter_group = None):

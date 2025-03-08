@@ -27,12 +27,13 @@ class SupernotesExtension(Extension):
 
 class KeywordQueryEventListener(EventListener):
 
-    def fetch(self, search, limit, api_key):
+    api = SupernotesApi()
+
+    def fetch(self, search, limit):
 
         logger.info('Requesting results for query "%s"' % search)
 
-        api = SupernotesApi(api_key)
-        response = api.select(search, limit)
+        response = self.api.select(search, limit)
 
         result = {}
 
@@ -43,12 +44,12 @@ class KeywordQueryEventListener(EventListener):
 
     def on_event(self, event: KeywordQueryEvent, extension: SupernotesExtension):
 
-        api_key = extension.preferences["api_key"]
+        self.api.api_key = extension.preferences["api_key"]
         arg_str = event.get_argument()
 
         items = []
 
-        if api_key:
+        if self.api.api_key:
 
             # add item "Create new card"
             desc_create = ""
@@ -82,7 +83,7 @@ class KeywordQueryEventListener(EventListener):
                 logger.info("Invalid pattern for daily note title given. Hiding item.")
 
             # add search results
-            result = self.fetch(arg_str, extension.preferences["limit"], api_key)
+            result = self.fetch(arg_str, extension.preferences["limit"])
 
             max_rows = 0
             if extension.preferences["max_rows"].isdigit():
@@ -125,6 +126,8 @@ class KeywordQueryEventListener(EventListener):
 
 
 class ItemEnterEventListener(EventListener):
+
+    api = SupernotesApi()
 
     def _compile_daily_note_title(self, title_pattern, date_style):
         today = datetime.date.today()
@@ -175,17 +178,14 @@ class ItemEnterEventListener(EventListener):
 
         return f"{prefix}{string}"
 
-    def append_daily(
-        self, string, tags, title_pattern, date_style, append_style, api_key
-    ):
+    def append_daily(self, string, tags, title_pattern, date_style, append_style):
 
         name = self._compile_daily_note_title(title_pattern, date_style)
         append = self._compile_daily_note_append(string, append_style)
 
         logger.info(f'Append string to daily note "{name}"')
 
-        api = SupernotesApi(api_key)
-        response = api.select(
+        response = self.api.select(
             "",
             1,
             filter_group={
@@ -201,23 +201,22 @@ class ItemEnterEventListener(EventListener):
                 item = list(result.values())[0].get("data")
                 id = item["id"]
                 markup = f"{item['markup']}\n{append}"
-                response = api.update(id, markup)
+                response = self.api.update(id, markup)
 
                 if not response.ok:
                     logger.error(response.json())
 
             else:
-                response = api.create(name, tags, markup=f"{append}")
+                response = self.api.create(name, tags, markup=f"{append}")
                 if not response.ok:
                     logger.error(response.json())
         else:
             logger.error(response.json())
 
-    def push(self, name, tags, api_key):
+    def push(self, name, tags):
         logger.info(f'Creating new card with name "{name}"')
 
-        api = SupernotesApi(api_key)
-        response = api.create(name, tags)
+        response = self.api.create(name, tags)
 
         return response.json()
 
@@ -230,7 +229,6 @@ class ItemEnterEventListener(EventListener):
         self.push(
             data["name"],
             self.read_tags(extension.preferences["tags"]),
-            extension.preferences["api_key"],
         )
 
     def on_daily_action(self, event: ItemEnterEvent, extension: SupernotesExtension):
@@ -241,13 +239,13 @@ class ItemEnterEventListener(EventListener):
             extension.preferences["daily_pattern"],
             extension.preferences["daily_date_style"],
             extension.preferences["daily_append_style"],
-            extension.preferences["api_key"],
         )
 
     def on_event(self, event: ItemEnterEvent, extension: SupernotesExtension):
-        data = event.get_data()
+        self.api.api_key = extension.preferences["api_key"]
+        action = event.get_data().get("action")
         switch = {"push": self.on_push_action, "daily": self.on_daily_action}
-        switch.get(data["action"])(event, extension)
+        switch.get(action)(event, extension)
 
 
 if __name__ == "__main__":
