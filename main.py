@@ -132,6 +132,8 @@ class ItemEnterEventListener(EventListener):
 
         if date_style == "iso":
             date = today.strftime("%Y-%m-%d")  # 2025-05-04
+        elif date_style == "slashes":
+            date = today.strftime("%Y/%m/%d")  # 2025/05/04
         elif date_style == "european":
             date = today.strftime("%d.%m.%Y")  # 04.05.2025
         elif date_style == "american":
