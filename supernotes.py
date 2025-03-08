@@ -39,11 +39,12 @@ class SupernotesApi:
     def __init__(self, api_key):
         self.api_key = api_key
 
-    def select(self, search, limit):
+    def select(self, search, limit, filter_group = None):
         url = "https://api.supernotes.app/v1/cards/get/select"
         payload = {
             "include_membership_statuses": [0, 1, 2],
             "search": search,
+            "filter_group": filter_group,
             "include": [],
             "exclude": [],
             "sort_type": 0,

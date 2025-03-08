@@ -34,9 +34,9 @@ class KeywordQueryEventListener(EventListener):
         api = SupernotesApi(api_key)
         response = api.select(search, limit)
 
-        result = []
+        result = {}
 
-        if response.status_code == 200:
+        if response.ok:
             result = response.json()
 
         return result
@@ -44,62 +44,70 @@ class KeywordQueryEventListener(EventListener):
     def on_event(self, event: KeywordQueryEvent, extension: SupernotesExtension):
 
         api_key = extension.preferences["api_key"]
-        arg_str = event.get_argument() if event.get_argument() else ""
+        arg_str = event.get_argument()
 
         items = []
 
         if api_key:
+
+            # add item "Create new card"
             desc_create = ""
-            desc_daily = ""
-            if len(arg_str) == 0:
+            if not arg_str:
                 desc_create = "Type in a card title and press Enter..."
-                desc_daily = "Type in something to capture and press Enter..."
-            data = {"action": "push", "name": arg_str}
+            data_create = {"action": "push", "name": arg_str}
             items.append(
                 ExtensionResultItem(
                     icon="images/supernotes.png",
                     name="Create new card",
                     description=desc_create,
-                    on_enter=ExtensionCustomAction(data),
+                    on_enter=ExtensionCustomAction(data_create),
                 )
             )
 
+            # add item "Add to daily note"
             if re.match("%d", extension.preferences["daily_pattern"]):
-                data = {"action": "daily", "append": arg_str}
+                desc_daily = ""
+                if not arg_str:
+                    desc_daily = "Type in your thoughts and press Enter..."
+                data_daily = {"action": "daily", "append": arg_str}
                 items.append(
                     ExtensionResultItem(
                         icon="images/supernotes.png",
                         name="Add to daily note",
                         description=desc_daily,
-                        on_enter=ExtensionCustomAction(data),
+                        on_enter=ExtensionCustomAction(data_daily),
                     )
                 )
+            else:
+                logger.info("Invalid pattern for daily note title given. Hiding item.")
 
+            # add search results
             result = self.fetch(arg_str, extension.preferences["limit"], api_key)
 
-            max_rows = (
-                int(extension.preferences["max_rows"])
-                if extension.preferences["max_rows"].isdigit()
-                else 3
-            )
+            max_rows = 0
+            if extension.preferences["max_rows"].isdigit():
+                max_rows = int(extension.preferences["max_rows"])
+            else:
+                logger.warning("Number of max rows need to be set to an integer.")
 
             url_factory = SupernotesUrlFactory(extension.preferences["open_in"])
 
             for id in result:
-                data = result.get(id).get("data")
-                name = data.get("name")
-                markup = data.get("markup")
+                entry: dict = result.get(id)
+                data: dict = entry.get("data")
+                name: str = data.get("name")
+                markup: str = data.get("markup")
 
-                array = markup.splitlines()
-                array = array[0 : min(len(array), max_rows)]
+                lines = [line for line in markup.splitlines() if line]
+                lines = lines[0 : min(len(lines), max_rows)]
 
-                markup = "\n".join(array)
+                desc = "\n".join(lines)
 
                 items.append(
                     ExtensionResultItem(
                         icon="images/supernotes.png",
                         name=name,
-                        description=markup,
+                        description=desc,
                         on_enter=OpenUrlAction(url_factory.create(id)),
                     )
                 )
@@ -121,7 +129,7 @@ class ItemEnterEventListener(EventListener):
     def _compile_daily_note_title(self, title_pattern, date_style):
         today = datetime.date.today()
         date = ""
-        
+
         if date_style == "iso":
             date = today.strftime("%Y-%m-%d")  # 2025-05-04
         elif date_style == "european":
@@ -175,9 +183,16 @@ class ItemEnterEventListener(EventListener):
         logger.info(f'Append string to daily note "{name}"')
 
         api = SupernotesApi(api_key)
-        response = api.select(name, 1)
+        response = api.select(
+            "",
+            1,
+            filter_group={
+                "operator": "and",
+                "filters": [{"type": "name", "operator": "equals", "arg": name}],
+            },
+        )
 
-        if response.status_code < 400:
+        if response.ok:
             result = response.json()
 
             if len(result) > 0:
@@ -186,18 +201,18 @@ class ItemEnterEventListener(EventListener):
                 markup = f"{item['markup']}\n{append}"
                 response = api.update(id, markup)
 
-                if response.status_code >= 400:
+                if not response.ok:
                     logger.error(response.json())
 
             else:
                 response = api.create(name, tags, markup=f"{append}")
-                if response.status_code >= 400:
+                if not response.ok:
                     logger.error(response.json())
         else:
             logger.error(response.json())
 
     def push(self, name, tags, api_key):
-        logger.info(f"Creating new card with name \"{name}\"")
+        logger.info(f'Creating new card with name "{name}"')
 
         api = SupernotesApi(api_key)
         response = api.create(name, tags)
