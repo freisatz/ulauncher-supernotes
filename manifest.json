@@ -12,6 +12,7 @@
       "id": "supernotes_kw",
       "type": "keyword",
       "name": "Supernotes",
+      "description": "Search your Supernotes database",
       "default_value": "sn"
     },
     {
