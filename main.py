@@ -8,6 +8,7 @@ from ulauncher.api.shared.event import KeywordQueryEvent
 from ulauncher.api.shared.event import ItemEnterEvent
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
+from ulauncher.api.shared.action.DoNothingAction import DoNothingAction
 from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
 from ulauncher.api.shared.action.OpenUrlAction import OpenUrlAction
 from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
@@ -52,31 +53,39 @@ class KeywordQueryEventListener(EventListener):
         if self.api.api_key:
 
             # add item "Create new card"
-            desc_create = ""
-            if not arg_str:
-                desc_create = "Type in a card title and press Enter..."
-            data_create = {"action": "push", "name": arg_str}
+            desc_create = "Type in a card title and press Enter..."
+            action_create = DoNothingAction()
+            
+            if arg_str:
+                desc_create = ""
+                data_create = {"action": "push", "name": arg_str}
+                action_create = ExtensionCustomAction(data_create)
+
             items.append(
                 ExtensionResultItem(
                     icon="images/supernotes.png",
                     name="Create new card",
                     description=desc_create,
-                    on_enter=ExtensionCustomAction(data_create),
+                    on_enter=action_create,
                 )
             )
 
             # add item "Add to daily note"
             if re.match("%d", extension.preferences["daily_pattern"]):
-                desc_daily = ""
-                if not arg_str:
-                    desc_daily = "Type in your thoughts and press Enter..."
-                data_daily = {"action": "daily", "append": arg_str}
+                desc_daily = "Type in your thoughts and press Enter..."
+                action_daily = DoNothingAction()
+
+                if arg_str:
+                    desc_daily = ""
+                    data_daily = {"action": "daily", "append": arg_str}
+                    action_daily = ExtensionCustomAction(data_daily)
+
                 items.append(
                     ExtensionResultItem(
                         icon="images/supernotes.png",
                         name="Add to daily note",
                         description=desc_daily,
-                        on_enter=ExtensionCustomAction(data_daily),
+                        on_enter=action_daily,
                     )
                 )
             else:
